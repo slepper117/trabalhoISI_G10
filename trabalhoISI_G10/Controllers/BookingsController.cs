@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.Mvc;
-using trabalhoISI_G10.models;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace trabalhoISI_G10.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ApiController]
-    [Route("[controller]")]
+    [Route("bookings")]
     public class BookingsController : ControllerBase
     {
-
-        [HttpGet(Name = "GetWeatherForecast")]
-
     }
 }
