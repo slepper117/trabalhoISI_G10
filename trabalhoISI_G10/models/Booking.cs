@@ -1,41 +1,41 @@
+using System.ComponentModel;
+
 namespace trabalhoISI_G10.models
 {
     /// <summary>
-    /// 
+    /// Booking Model
     /// </summary>
     public class Booking
     {
+        // Attributes
         private int id;
-        private int idUser;
-        private int idRoom;
+        private User user;
+        private Room room;
         private DateTime start;
         private DateTime end;
         private string description;
         private bool validated;
 
         /// <summary>
-        /// 
+        /// Default Constructor
         /// </summary>
-        public Booking()
-        {
-            description = string.Empty;
-        }
+        public Booking() { }
 
         /// <summary>
-        /// 
+        /// Constructor with all attributes
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="idUser"></param>
-        /// <param name="idRoom"></param>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        /// <param name="description"></param>
-        /// <param name="validated"></param>
-        public Booking(int id, int idUser, int idRoom, DateTime start, DateTime end, string description, bool validated)
+        /// <param name="id">ID Attribute</param>
+        /// <param name="user">User Object Attribute</param>
+        /// <param name="room">Room Object Attribute</param>
+        /// <param name="start">Start Datetime Attribute</param>
+        /// <param name="end">End Datetime Attribute</param>
+        /// <param name="description">Description Attribute</param>
+        /// <param name="validated">Vaidated Attribute</param>
+        public Booking(int id, User user, Room room, DateTime start, DateTime end, string description, bool validated)
         {
             this.id = id;
-            this.idUser = idUser;
-            this.idRoom = idRoom;
+            this.user = user;
+            this.room = room;
             this.start = start;
             this.end = end;
             this.description = description;
@@ -43,7 +43,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property ID Attribute
         /// </summary>
         public int Id
         {
@@ -55,31 +55,25 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property User Object Attribute
         /// </summary>
-        public int IdUser
+        public User User
         { 
-            get => idUser;
-            set {
-                if (idUser > 0)
-                    idUser = value;
-            }
+            get => user;
+            set => user = value;
         }
 
         /// <summary>
-        /// 
+        /// Property Room Object Attribute
         /// </summary>
-        public int IdRoom
+        public Room Room
         {
-            get => idRoom;
-            set {
-                if (idRoom > 0)
-                    idRoom = value;
-            }
+            get => room;
+            set => room = value;
         }
 
         /// <summary>
-        /// 
+        /// Property Start Datetime Attribute
         /// </summary>
         public DateTime Start
         {
@@ -88,21 +82,18 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property End Datetime Attribute
         /// </summary>
         public DateTime End
         {
             get => end; 
-            set
-            {
-                if (end > start) 
-                    end = value;
-            }
+            set => end = value;
         }
 
         /// <summary>
-        /// 
+        /// Property Description Attribute
         /// </summary>
+        [DefaultValue("Descritivo da Reserva")]
         public string Description
         {
             get => description; 
@@ -110,8 +101,9 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property Validated Attribute
         /// </summary>
+        [DefaultValue(false)]
         public bool Validated
         {
             get => validated; 
