@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using trabalhoISI_G10.models;
-using static trabalhoISI_G10.Functions;
 
 namespace trabalhoISI_G10.Controllers
 {
@@ -66,7 +65,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Insert Area
-                string query = $"INSERT INTO setr.areas(name) VALUES ('{newArea.Name}') RETURNING *";
+                string query = $"INSERT INTO setr.areas(name) VALUES ('{newArea.Name}') RETURNING *;";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
                 await rdr.ReadAsync();
@@ -98,7 +97,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Area
-                string query = $"SELECT * FROM setr.areas WHERE id = {id}";
+                string query = $"SELECT * FROM setr.areas WHERE id = {id};";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -136,7 +135,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Area
-                string query = $"SELECT * FROM setr.areas WHERE id = {id}";
+                string query = $"SELECT * FROM setr.areas WHERE id = {id};";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -183,7 +182,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Room
-                string query = $"SELECT * FROM setr.areas WHERE id = {id}";
+                string query = $"SELECT * FROM setr.areas WHERE id = {id};";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -191,7 +190,7 @@ namespace trabalhoISI_G10.Controllers
                 if (!rdr.HasRows) return NotFound("No Area was found with the provided ID");
 
                 // Deletes Room
-                string deleteQuery = $"DELETE FROM setr.users_areas WHERE id_area = {id}; DELETE FROM setr.areas WHERE id = {id}";
+                string deleteQuery = $"DELETE FROM setr.users_areas WHERE id_area = {id}; DELETE FROM setr.areas WHERE id = {id};";
                 await using NpgsqlCommand delete = dataSource.CreateCommand(deleteQuery);
                 await delete.ExecuteNonQueryAsync();
 

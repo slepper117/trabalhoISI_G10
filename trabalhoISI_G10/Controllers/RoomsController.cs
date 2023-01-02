@@ -28,7 +28,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Fetch all Rooms
-                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id";
+                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id;";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -66,7 +66,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Insert Room
-                string query = $"INSERT INTO setr.rooms(name) VALUES ('{newRoom.Name}') RETURNING *";
+                string query = $"INSERT INTO setr.rooms(name) VALUES ('{newRoom.Name}') RETURNING *;";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
                 await rdr.ReadAsync();
@@ -136,7 +136,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Room
-                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id";
+                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id;";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -182,7 +182,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Room
-                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id";
+                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id;";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -190,7 +190,7 @@ namespace trabalhoISI_G10.Controllers
                 if (!rdr.HasRows) return NotFound("No Room was found with the provided ID");
 
                 // Deletes Room
-                string deleteQuery = $"DELETE FROM setr.bookings WHERE id_room = {id}; DELETE FROM setr.rooms WHERE id = {id}";
+                string deleteQuery = $"DELETE FROM setr.bookings WHERE id_room = {id}; DELETE FROM setr.rooms WHERE id = {id};";
                 await using NpgsqlCommand delete = dataSource.CreateCommand(deleteQuery);
                 await delete.ExecuteNonQueryAsync();
 

@@ -29,7 +29,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Fetch all Bookings
-                string query = "SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS bookings, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id";
+                string query = "SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS bookings, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id;";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -69,7 +69,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Check if the User ID exists, and builds User Object
-                string getUserQuery = $"SELECT id, name FROM setr.users WHERE id = {newBooking.User.Id}";
+                string getUserQuery = $"SELECT id, name FROM setr.users WHERE id = {newBooking.User.Id};";
                 await using NpgsqlCommand getUser = dataSource.CreateCommand(getUserQuery);
                 await using NpgsqlDataReader rdrUser = await getUser.ExecuteReaderAsync();
                 if (!rdrUser.HasRows) return NotFound("No User was found with the provided ID");
@@ -77,7 +77,7 @@ namespace trabalhoISI_G10.Controllers
                 User user = new(rdrUser.GetInt32(0), rdrUser.GetString(1));
 
                 // Check if the Room ID exists, and builds Room Object
-                string getRoomQuery = $"SELECT r.id, r.name, count(b.id)::INTEGER AS bookings FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {newBooking.Room.Id} GROUP BY r.id";
+                string getRoomQuery = $"SELECT r.id, r.name, count(b.id)::INTEGER AS bookings FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {newBooking.Room.Id} GROUP BY r.id;";
                 await using NpgsqlCommand getRoom = dataSource.CreateCommand(getRoomQuery);
                 await using NpgsqlDataReader rdrRoom = await getRoom.ExecuteReaderAsync();
                 if (!rdrRoom.HasRows) return NotFound("No Room was found with the provided ID");
@@ -92,7 +92,7 @@ namespace trabalhoISI_G10.Controllers
                 if (!checkAvailabilaty) return BadRequest("Cannot validate because there is another booking on time interval");
 
                 // Insert Booking
-                string query = $"INSERT INTO setr.bookings(id_user, id_room, start, final, description, validated) VALUES ({newBooking.User.Id}, {newBooking.Room.Id}, '{newBooking.Start:s}', '{newBooking.End:s}', '{newBooking.Description}', 'false') RETURNING *";
+                string query = $"INSERT INTO setr.bookings(id_user, id_room, start, final, description, validated) VALUES ({newBooking.User.Id}, {newBooking.Room.Id}, '{newBooking.Start:s}', '{newBooking.End:s}', '{newBooking.Description}', 'false') RETURNING *;";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
                 await rdr.ReadAsync();
@@ -122,7 +122,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Booking
-                string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS bookings, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id}";
+                string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS bookings, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id};";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -161,7 +161,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Booking
-                string getBookingQuery = ($"SELECT * FROM setr.bookings WHERE id = {id}");
+                string getBookingQuery = $"SELECT * FROM setr.bookings WHERE id = {id};";
                 await using NpgsqlCommand getBooking = dataSource.CreateCommand(getBookingQuery);
                 await using NpgsqlDataReader rdrGetBooking = await getBooking.ExecuteReaderAsync();
 
@@ -253,12 +253,12 @@ namespace trabalhoISI_G10.Controllers
                 if (updateBooking.Description.Length != 0) description = updateBooking.Description;
 
                 // Updates Booking with new values
-                string updateQuery = $"UPDATE setr.bookings SET (id_user, id_room, start, final, description) = ({idUser},  {idRoom}, '{start}', '{end}', '{description}') WHERE id = {id}";
+                string updateQuery = $"UPDATE setr.bookings SET (id_user, id_room, start, final, description) = ({idUser},  {idRoom}, '{start}', '{end}', '{description}') WHERE id = {id};";
                 await using NpgsqlCommand update = dataSource.CreateCommand(updateQuery);
                 await update.ExecuteNonQueryAsync();
 
                 // Get updated Booking
-                string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS count, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id}";
+                string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS count, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id};";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -293,7 +293,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Booking
-                string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS count, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id}";
+                string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS count, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id};";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
@@ -305,7 +305,7 @@ namespace trabalhoISI_G10.Controllers
                 if (rdr.GetBoolean(9)) return BadRequest("Cannot delete Booking, because it was validated");
 
                 // Deletes Booking
-                string deleteQuery = $"DELETE FROM setr.bookings WHERE id = {id}";
+                string deleteQuery = $"DELETE FROM setr.bookings WHERE id = {id};";
                 await using NpgsqlCommand delete = dataSource.CreateCommand(deleteQuery);
                 await delete.ExecuteNonQueryAsync();
 
@@ -339,7 +339,7 @@ namespace trabalhoISI_G10.Controllers
                 await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Get Booking
-                string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS count, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id}";
+                string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS count, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id};";
                 await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
                 await rdr.ReadAsync();
