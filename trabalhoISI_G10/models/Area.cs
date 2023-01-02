@@ -8,21 +8,26 @@ namespace trabalhoISI_G10.models
         // Attributes
         private int id;
         private string name;
+        private List<User> users;
 
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public Area() { }
+        public Area() 
+        {
+            users = new List<User>();
+        }
 
         /// <summary>
         /// Constructor with all attributes
         /// </summary>
-        /// <param name="id">ID Attribute<</param>
+        /// <param name="id">ID Attribute</param>
         /// <param name="name">Name Attribute</param>
         public Area(int id, string name)
         {
             this.id = id;
             this.name = name;
+            users = new List<User>();
         }
 
         /// <summary>
@@ -43,6 +48,15 @@ namespace trabalhoISI_G10.models
         public string Name { 
             get => name; 
             set => name = value; 
+        }
+
+        /// <summary>
+        /// Property List Users
+        /// </summary>
+        public List<User> Users
+        {
+            get => users;
+            set => users = value;
         }
     }
 }
