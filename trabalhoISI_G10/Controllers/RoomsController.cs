@@ -1,21 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using trabalhoISI_G10.models;
-using static trabalhoISI_G10.Functions;
 
 namespace trabalhoISI_G10.Controllers
 {
     /// <summary>
-    /// 
+    /// Rooms Controllers
     /// </summary>
     [ApiController]
     [Route("rooms")]
     public class RoomsController : ControllerBase
     {
         /// <summary>
-        /// 
+        /// Lists all Rooms
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An array of Rooms</returns>
         [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
@@ -24,14 +23,14 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
+                // Initialize List and Datasource
                 List<Room> rooms = new();
-
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Fetch all Rooms
-                string sql = ("SELECT r.id, r.name, count(b.id)::INTEGER AS bookings FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id ORDER BY bookings DESC;");
-                await using NpgsqlCommand list = dataSource.CreateCommand(sql);
-                await using NpgsqlDataReader rdr = await list.ExecuteReaderAsync();
+                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id";
+                await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
+                await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
                 // Check if rooms exists
                 if (!rdr.HasRows) return NotFound("No Rooms were found with the given parameters");
@@ -39,11 +38,10 @@ namespace trabalhoISI_G10.Controllers
                 // Construct List
                 while (await rdr.ReadAsync())
                 {
-                    rooms.Add(new Room { Id = rdr.GetInt32(0), Name = rdr.GetString(1), Bookings = rdr.GetInt32(3) });
+                    rooms.Add(new Room(rdr.GetInt32(0), rdr.GetString(1), rdr.GetInt32(3)));
                 }
 
                 return Ok(rooms);
-
             }
             catch (Exception e)
             {
@@ -52,10 +50,10 @@ namespace trabalhoISI_G10.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Creates a Rooms
         /// </summary>
-        /// <param name="newRoom"></param>
-        /// <returns></returns>
+        /// <param name="newRoom">Object with the Room properties</param>
+        /// <returns>The newly created Room</returns>
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -64,12 +62,13 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                // Initialize Datasource
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Insert Room
-                string query = $"INSERT INTO setr.rooms (name) VALUES ('{newRoom.Name}') RETURNING *";
-                await using NpgsqlCommand insert = dataSource.CreateCommand(query);
-                await using NpgsqlDataReader rdr = await insert.ExecuteReaderAsync();
+                string query = $"INSERT INTO setr.rooms(name) VALUES ('{newRoom.Name}') RETURNING *";
+                await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
+                await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
                 await rdr.ReadAsync();
                 Room room = new(rdr.GetInt32(0), rdr.GetString(1), 0);
 
@@ -82,10 +81,10 @@ namespace trabalhoISI_G10.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Fetchs a Room, by ID
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">ID of the Room</param>
+        /// <returns>The fetched Room</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -95,16 +94,18 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                // Initialize Datasource
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+
+                // Get Room
+                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id";
+                await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
+                await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
                 // Check if the ID exists
-                bool checkID = await CheckID(dataSource, "rooms", id);
-                if (!checkID) return NotFound("No Rooms was found with the ID");
+                if (!rdr.HasRows) return NotFound("No Room was found with the provided ID");
 
-                // Fetch the object
-                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER AS bookings FROM setr.rooms r WHERE r.id = {id} LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id";
-                await using NpgsqlCommand get = dataSource.CreateCommand(query);
-                await using NpgsqlDataReader rdr = await get.ExecuteReaderAsync();
+                // Construct Object
                 await rdr.ReadAsync();
                 Room room = new(rdr.GetInt32(0), rdr.GetString(1), rdr.GetInt32(2));
 
@@ -117,11 +118,11 @@ namespace trabalhoISI_G10.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Updates a Room, by a ID
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="updateRoom"></param>
-        /// <returns></returns>
+        /// <param name="id">ID of the Room</param>
+        /// <param name="updateRoom">Object with the Room properties to update</param>
+        /// <returns>The updated Room</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -131,22 +132,28 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                // Initialize Datasource
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+
+                // Get Room
+                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id";
+                await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
+                await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
                 // Check if the ID exists
-                bool checkID = await CheckID(dataSource, "rooms", id);
-                if (!checkID) return NotFound("No Room was found with the ID");
+                if (!rdr.HasRows) return NotFound("No Room was found with the provided ID");
 
-                // Update Room
-                await using NpgsqlCommand update = dataSource.CreateCommand($"UPDATE setr.rooms SET name = '{updateRoom.Name}' WHERE id = {id};");
+                // Validates Name
+                if (updateRoom.Name.Length == 0) return BadRequest("Name property cannot be empty");
+
+                // Updates Room with new values
+                string updateQuery = $"UPDATE setr.rooms SET name = '{updateRoom.Name}' WHERE id = {id};";
+                await using NpgsqlCommand update = dataSource.CreateCommand(updateQuery);
                 await update.ExecuteNonQueryAsync();
 
-                // Fetch the object
-                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER AS bookings FROM setr.rooms r WHERE r.id = {id} LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id";
-                await using NpgsqlCommand get = dataSource.CreateCommand(query);
-                await using NpgsqlDataReader rdr = await get.ExecuteReaderAsync();
+                // Construct Objects
                 await rdr.ReadAsync();
-                Room room = new(rdr.GetInt32(0), rdr.GetString(1), rdr.GetInt32(2));
+                Room room = new(rdr.GetInt32(0), updateRoom.Name, rdr.GetInt32(2));
 
                 return Ok(room);
             }
@@ -158,7 +165,7 @@ namespace trabalhoISI_G10.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Deletes a Room, by ID
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -171,22 +178,25 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                // Initialize Datasource
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+
+                // Get Room
+                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id";
+                await using NpgsqlCommand cmd = dataSource.CreateCommand(query);
+                await using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
 
                 // Check if the ID exists
-                bool checkID = await CheckID(dataSource, "rooms", id);
-                if (!checkID) return NotFound("No Room was found with the ID");
+                if (!rdr.HasRows) return NotFound("No Room was found with the provided ID");
 
-                // Fetch the object
-                string query = $"SELECT r.id, r.name, count(b.id)::INTEGER AS bookings FROM setr.rooms r WHERE r.id = {id} LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id";
-                await using NpgsqlCommand get = dataSource.CreateCommand(query);
-                await using NpgsqlDataReader rdr = await get.ExecuteReaderAsync();
+                // Deletes Room
+                string deleteQuery = $"DELETE FROM setr.bookings WHERE id_room = {id}; DELETE FROM setr.rooms WHERE id = {id}";
+                await using NpgsqlCommand delete = dataSource.CreateCommand(deleteQuery);
+                await delete.ExecuteNonQueryAsync();
+
+                // Construct Object
                 await rdr.ReadAsync();
                 Room room = new(rdr.GetInt32(0), rdr.GetString(1), rdr.GetInt32(2));
-
-                // Update Room
-                await using NpgsqlCommand delete = dataSource.CreateCommand($"DELETE FROM setr.rooms WHERE id = {id};");
-                await delete.ExecuteNonQueryAsync();
 
                 return Ok(room);
             }

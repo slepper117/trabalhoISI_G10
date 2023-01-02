@@ -1,12 +1,11 @@
-﻿using Npgsql;
-
-namespace trabalhoISI_G10.models
+﻿namespace trabalhoISI_G10.models
 {
     /// <summary>
-    /// Configuração da Ligação há base de dados
+    /// Database Configuration Model
     /// </summary>
     public static class DatabaseConfig
     {
+        // Attributes
         static string host;
         static string database;
         static string username;
@@ -24,7 +23,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property Host Attribute
         /// </summary>
         public static string Host 
         { 
@@ -32,7 +31,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property Database Attribute
         /// </summary>
         public static string Database 
         { 
@@ -40,7 +39,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property Username Attribute
         /// </summary>
         public static string Username 
         { 
@@ -48,7 +47,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property Password Attribute
         /// </summary>
         public static string Password 
         { 
@@ -57,12 +56,13 @@ namespace trabalhoISI_G10.models
 
 
         /// <summary>
-        /// 
+        /// Function that returns an Connection String
         /// </summary>
         /// <returns></returns>
-        public static NpgsqlDataSource Create() 
+        public static String ConnectionString()
         {
-            return NpgsqlDataSource.Create($"Host={host};Database={database};Username={username};Password={password}");
+            return $"Host={host};Database={database};Username={username};Password={password}";
         }
+
     }
 }

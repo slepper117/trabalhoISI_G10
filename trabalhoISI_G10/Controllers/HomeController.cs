@@ -4,14 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace trabalhoISI_G10.Controllers
 {
     /// <summary>
-    /// Class for Root Routes
+    /// Home Controller
     /// </summary>
     [ApiController]
     [Route("/")]
     public class HomeController : ControllerBase
     {
         /// <summary>
-        /// 
+        /// Index Root
         /// </summary>
         /// <returns></returns>
         [HttpGet]

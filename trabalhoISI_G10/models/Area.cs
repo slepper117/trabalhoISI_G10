@@ -1,26 +1,24 @@
 namespace trabalhoISI_G10.models
 {
     /// <summary>
-    /// 
+    /// Area Model
     /// </summary>
     public class Area
     {
+        // Attributes
         private int id;
         private string name;
 
         /// <summary>
-        /// 
+        /// Default Constructor
         /// </summary>
-        public Area() 
-        { 
-            name = string.Empty;
-        }
+        public Area() { }
 
         /// <summary>
-        /// 
+        /// Constructor with all attributes
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="name"></param>
+        /// <param name="id">ID Attribute<</param>
+        /// <param name="name">Name Attribute</param>
         public Area(int id, string name)
         {
             this.id = id;
@@ -28,7 +26,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property ID Attribute
         /// </summary>
         public int Id {
             get => id;
@@ -40,7 +38,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property Name Attribute
         /// </summary>
         public string Name { 
             get => name; 

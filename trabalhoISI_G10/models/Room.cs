@@ -1,28 +1,26 @@
 namespace trabalhoISI_G10.models
 {
     /// <summary>
-    /// 
+    /// Room Model
     /// </summary>
     public class Room
     {
+        // Attributes
         private int id;
         private string name;
         private int bookings;
 
         /// <summary>
-        /// 
+        /// Default Constructor
         /// </summary>
-        public Room() 
-        {
-            name = string.Empty;
-        }
+        public Room() { }
 
         /// <summary>
-        /// 
+        /// Constructor with all attributes
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="name"></param>
-        /// <param name="bookings"></param>
+        /// <param name="id">ID Attribute</param>
+        /// <param name="name">Name Attribute</param>
+        /// <param name="bookings">Bookings Count Attribute</param>
         public Room(int id, string name, int bookings)
         {
             this.id = id;
@@ -31,7 +29,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property ID Attribute
         /// </summary>
         public int Id
         {
@@ -40,7 +38,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property Name Attribute
         /// </summary>
         public string Name { 
             get => name; 
@@ -48,7 +46,7 @@ namespace trabalhoISI_G10.models
         }
 
         /// <summary>
-        /// 
+        /// Property Bookings Count Attribute
         /// </summary>
         public int Bookings
         {

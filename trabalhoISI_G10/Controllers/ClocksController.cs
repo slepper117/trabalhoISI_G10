@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Npgsql;
+using System.Data;
 using trabalhoISI_G10.models;
 using static trabalhoISI_G10.Functions;
 
 namespace trabalhoISI_G10.Controllers
 {
     /// <summary>
-    /// Clocks Controller Class
+    /// Clocks Controller
     /// </summary>
     [ApiController]
     [Route("clocks")]
@@ -15,7 +16,7 @@ namespace trabalhoISI_G10.Controllers
         /// <summary>
         /// Lists all Clocks
         /// </summary>
-        /// <returns>An Array of objects with tje clocks</returns>
+        /// <returns>An array of Clocks</returns>
         [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -25,21 +26,24 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
+                // Initialize List and Datasource
                 List<Clock> clocks = new();
-
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
                 // Fetch all Clocks
-                await using NpgsqlCommand list = dataSource.CreateCommand("SELECT * FROM setr.clocks;");
+                string query = $"SELECT u.id, u.name, c.id, direction, datetime, l.id, l.name FROM setr.clocks c JOIN setr.users u ON c.id_user = u.id JOIN setr.users l ON c.log = l.id;";
+                await using NpgsqlCommand list = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await list.ExecuteReaderAsync();
 
-                // Check if there is items
+                // Check if Clocks exits
                 if (!rdr.HasRows) return NotFound("No Clocks were found with the given parameters");
 
                 // Construct List
                 while (await rdr.ReadAsync())
                 {
-                    clocks.Add(new Clock(rdr.GetInt32(0), rdr.GetInt32(1), rdr.GetString(2), rdr.GetDateTime(3), rdr.GetInt32(4)));
+                    User user = new(rdr.GetInt32(0), rdr.GetString(1));
+                    User log = new(rdr.GetInt32(5), rdr.GetString(6));
+                    clocks.Add(new Clock(rdr.GetInt32(2), user, rdr.GetString(3), rdr.GetDateTime(4), log));
                 }
 
                 return Ok(clocks);
@@ -52,9 +56,9 @@ namespace trabalhoISI_G10.Controllers
         }
 
         /// <summary>
-        /// Create a Clock for a given user
+        /// Creates a Clock
         /// </summary>
-        /// <param name="newClock">Object with the clock</param>
+        /// <param name="newClock">Object with the Clock properties</param>
         /// <returns>A newly created Clock</returns>
         [HttpPost]
         [ProducesResponseType(200)]
@@ -65,18 +69,29 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                // Initialize Datasource
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
 
-                // Check if User exists
-                bool checkID = await CheckID(dataSource, "users", newClock.IdUser);
-                if (!checkID) return NotFound("User ID dosen't exists");
+                // Check if the User ID exists, and builds User Object
+                string getUserQuery = $"SELECT id, name FROM setr.users WHERE id = {newClock.User.Id}";
+                await using NpgsqlCommand getUser = dataSource.CreateCommand(getUserQuery);
+                await using NpgsqlDataReader rdrUser = await getUser.ExecuteReaderAsync();
+                if (!rdrUser.HasRows) return NotFound("No User was found with the provided ID");
+                await rdrUser.ReadAsync();
+                User user = new(rdrUser.GetInt32(0), rdrUser.GetString(1));
+
+                // Validates Direction
+                string[] directions = { "in", "out" };
+                if (newClock.Direction != directions[0] || newClock.Direction != directions[1]) return BadRequest("Property direction must be 'in' or 'out'");
+
+                // Get User to Log
 
                 // Insert Clock
-                string query = $"INSERT INTO setr.clocks(id_user, direction, datetime, log) VALUES ({newClock.IdUser}, '{newClock.Direction}', '{newClock.DateTime:s}', 1) RETURNING *;";
+                string query = $"INSERT INTO setr.clocks(id_user, direction, datetime, log) VALUES ({newClock.User.Id}, '{newClock.Direction}', '{newClock.Datetime:s}', 1) RETURNING *;";
                 await using NpgsqlCommand insert = dataSource.CreateCommand(query);
                 await using NpgsqlDataReader rdr = await insert.ExecuteReaderAsync();
                 await rdr.ReadAsync();
-                Clock clock = new(rdr.GetInt32(0), rdr.GetInt32(1), rdr.GetString(2), rdr.GetDateTime(3), rdr.GetInt32(4));
+                Clock clock = new(rdr.GetInt32(0), user, rdr.GetString(2), rdr.GetDateTime(3), user);
 
                 return Ok(clock);
             }
@@ -87,10 +102,10 @@ namespace trabalhoISI_G10.Controllers
         }
 
         /// <summary>
-        /// Gets a Clock by ID
+        /// Fetchs a Clock, by ID
         /// </summary>
         /// <param name="id">ID of the Clock</param>
-        /// <returns>The Clock fetched</returns>
+        /// <returns>The fetched Clock</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -100,17 +115,22 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                // Initialize Datasource
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+
+                // Get Clock
+                string query = $"SELECT u.id, u.name, c.id, direction, datetime, l.id, l.name FROM setr.clocks c JOIN setr.users u ON c.id_user = u.id JOIN setr.users l ON c.log = l.id WHERE c.id = {id};";
+                await using NpgsqlCommand get = dataSource.CreateCommand(query);
+                await using NpgsqlDataReader rdr = await get.ExecuteReaderAsync();
 
                 // Check if the ID exists
-                bool checkID = await CheckID(dataSource, "clocks", id);
-                if (!checkID) return NotFound("No Clock was found with the ID");
+                if (!rdr.HasRows) return NotFound("No Clock was found with the provided ID");
 
-                // Fetch the object
-                await using NpgsqlCommand get = dataSource.CreateCommand($"SELECT * FROM setr.clocks WHERE id = {id};");
-                await using NpgsqlDataReader rdr = await get.ExecuteReaderAsync();
+                // Construct Object
                 await rdr.ReadAsync();
-                Clock clock = new(rdr.GetInt32(0), rdr.GetInt32(1), rdr.GetString(2), rdr.GetDateTime(3), rdr.GetInt32(4));
+                User user = new(rdr.GetInt32(0), rdr.GetString(1));
+                User log = new(rdr.GetInt32(5), rdr.GetString(6));
+                Clock clock = new(rdr.GetInt32(2), user, rdr.GetString(3), rdr.GetDateTime(4), log);
 
                 return Ok(clock);
             }
@@ -124,8 +144,8 @@ namespace trabalhoISI_G10.Controllers
         /// Updates a clock, by ID.
         /// </summary>
         /// <param name="id">ID of the clock</param>
-        /// <param name="updateClock">Object with props to update</param>
-        /// <returns>A uptadated Clock</returns>
+        /// <param name="updateClock">Object with the Clock properties to update</param>
+        /// <returns>The updated Clock</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -135,30 +155,58 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                // Initialize Datasource
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+
+                // Get Clock
+                string getClockQuery = $"SELECT * FROM setr.clocks WHERE id = {id}";
+                await using NpgsqlCommand getBooking = dataSource.CreateCommand(getClockQuery);
+                await using NpgsqlDataReader rdrGetClock = await getBooking.ExecuteReaderAsync();
 
                 // Check if the ID exists
-                bool checkID = await CheckID(dataSource, "clocks", id);
-                if (!checkID) return NotFound("No Clock was found with the ID");
+                if (!rdrGetClock.HasRows) return NotFound("No Clock was found with the provided ID");
 
-                // If new User ID
-                if (updateClock.IdUser > 0)
+                // Get Values
+                await rdrGetClock.ReadAsync();
+                int idUser = rdrGetClock.GetInt32(1);
+                string direction = rdrGetClock.GetString(2);
+                DateTime datetime = rdrGetClock.GetDateTime(3);
+                int idLog = rdrGetClock.GetInt32(4);
+
+                // Validate User
+                if (updateClock.User.Id != idUser)
                 {
-                    bool checkUserID = await CheckID(dataSource, "clocks", updateClock.IdUser);
-                    if (!checkUserID) return NotFound("No Clock was found with the ID");
+                    bool checkUser = await CheckID(dataSource, "users", updateClock.User.Id);
+                    if (!checkUser) return NotFound("No User was found with the provided ID");
+
+                    // Set new Value
+                    idUser = updateClock.User.Id;
                 }
 
-                // Update Clock
-                string query = 
-                    $"UPDATE setr.clocks SET " +
-                    $"{(updateClock.IdUser > 0 ? $"id_user = {updateClock.IdUser}" : "")}" +
-                    $"{(updateClock.Direction.Length != 0 ? $"direction = '{updateClock.Direction}'" : "")}" +
-                    $"{(updateClock.DateTime.ToString("s").Length != 0 ? $"datetime = '{updateClock.DateTime:s}'" : "")} " +
-                    $"RETURNING *";
-                await using NpgsqlCommand update = dataSource.CreateCommand(query);
-                await using NpgsqlDataReader rdr = await update.ExecuteReaderAsync();
+                // Validate Direction
+                if (updateClock.Direction != direction)
+                {
+                    string[] directions = { "in", "out" };
+                    if (updateClock.Direction != directions[0] || updateClock.Direction != directions[1]) return BadRequest("Property direction must be 'in' or 'out'");
+                }
+
+                // Validate Log
+
+                // Updates Clock with new values
+                string updateQuery = $"UPDATE setr.clocks SET (id_user, direction, datetime, log) = ({idUser}, '{direction}', '{datetime}', {idLog}) WHERE id = {id}";
+                await using NpgsqlCommand update = dataSource.CreateCommand(updateQuery);
+                await update.ExecuteNonQueryAsync();
+
+                // Get updated Clock
+                string query = $"SELECT u.id, u.name, c.id, direction, datetime, l.id, l.name FROM setr.clocks c JOIN setr.users u ON c.id_user = u.id JOIN setr.users l ON c.log = l.id WHERE c.id = {id};";
+                await using NpgsqlCommand get = dataSource.CreateCommand(query);
+                await using NpgsqlDataReader rdr = await get.ExecuteReaderAsync();
+
+                // Construct Object
                 await rdr.ReadAsync();
-                Clock clock = new(rdr.GetInt32(0), rdr.GetInt32(1), rdr.GetString(2), rdr.GetDateTime(3), rdr.GetInt32(4));
+                User user = new(rdr.GetInt32(0), rdr.GetString(1));
+                User log = new(rdr.GetInt32(5), rdr.GetString(6));
+                Clock clock = new(rdr.GetInt32(2), user, rdr.GetString(3), rdr.GetDateTime(4), log);
 
                 return Ok(clock);
 
@@ -170,10 +218,10 @@ namespace trabalhoISI_G10.Controllers
         }
 
         /// <summary>
-        /// Deletes a Clock
+        /// Deletes a Clock, by ID
         /// </summary>
         /// <param name="id">ID of the Clock</param>
-        /// <returns>A Clock deleted</returns>
+        /// <returns>The deleted Clock</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -183,22 +231,29 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = DatabaseConfig.Create();
+                // Initialize Datasource
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+
+                // Get Clock
+                string query = $"SELECT u.id, u.name, c.id, direction, datetime, l.id, l.name FROM setr.clocks c JOIN setr.users u ON c.id_user = u.id JOIN setr.users l ON c.log = l.id WHERE c.id = {id};";
+                await using NpgsqlCommand get = dataSource.CreateCommand(query);
+                await using NpgsqlDataReader rdr = await get.ExecuteReaderAsync();
 
                 // Check if the ID exists
-                bool checkID = await CheckID(dataSource, "clocks", id);
-                if (!checkID) return NotFound("No Clock was found with the ID");
+                if (!rdr.HasRows) return NotFound("No Clock was found with the provided ID");
 
-                // Fetch the object
-                await using NpgsqlCommand get = dataSource.CreateCommand($"SELECT * FROM setr.clocks WHERE id = {id};");
-                await using NpgsqlDataReader rdr = await get.ExecuteReaderAsync();
-                await rdr.ReadAsync();
-                Clock clock = new(rdr.GetInt32(0), rdr.GetInt32(1), rdr.GetString(2), rdr.GetDateTime(3), rdr.GetInt32(4));
-
-                // Deletes the Object
-                await using NpgsqlCommand delete = dataSource.CreateCommand($"DELETE FROM setr.clocks WHERE id = {id};");
+                // Deletes Clock
+                string deleteQuery = $"DELETE FROM setr.clocks WHERE id = {id}";
+                await using NpgsqlCommand delete = dataSource.CreateCommand(deleteQuery);
                 await delete.ExecuteNonQueryAsync();
-                return Ok();
+
+                // Construct Object
+                await rdr.ReadAsync();
+                User user = new(rdr.GetInt32(0), rdr.GetString(1));
+                User log = new(rdr.GetInt32(5), rdr.GetString(6));
+                Clock clock = new(rdr.GetInt32(2), user, rdr.GetString(3), rdr.GetDateTime(4), log);
+
+                return Ok(clock);
             }
             catch (Exception e)
             {
