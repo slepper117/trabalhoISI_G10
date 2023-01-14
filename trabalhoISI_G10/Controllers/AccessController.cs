@@ -33,7 +33,7 @@ namespace trabalhoISI_G10.Controllers
                 Access access = new("authorized", DateTime.UtcNow);
 
                 // Check if the User Tag exists
-                string getUserQuery = $"SELECT id, name FROM setr.users WHERE tag = {tag.TagID};";
+                string getUserQuery = $"SELECT id, name FROM setr.users WHERE tag = '{tag.TagID}';";
                 await using NpgsqlCommand getUser = dataSource.CreateCommand(getUserQuery);
                 await using NpgsqlDataReader rdrUser = await getUser.ExecuteReaderAsync();
                 if (!rdrUser.HasRows) return NotFound("No User was found with the provided Tag");
@@ -71,7 +71,7 @@ namespace trabalhoISI_G10.Controllers
                 Access access = new("authorized", DateTime.UtcNow);
 
                 // Check if the User Tag exists
-                string getUserQuery = $"SELECT id, name FROM setr.users WHERE tag = {tag.TagID};";
+                string getUserQuery = $"SELECT id, name FROM setr.users WHERE tag = '{tag.TagID}';";
                 await using NpgsqlCommand getUser = dataSource.CreateCommand(getUserQuery);
                 await using NpgsqlDataReader rdrUser = await getUser.ExecuteReaderAsync();
                 if (!rdrUser.HasRows) return NotFound("No User was found with the provided Tag");
@@ -116,7 +116,7 @@ namespace trabalhoISI_G10.Controllers
                 if (!rdrArea.HasRows) return NotFound("No Area was found with the provided ID");
 
                 // Check if the User Tag exists
-                string getUserQuery = $"SELECT id, name FROM setr.users WHERE tag = {tag.TagID};";
+                string getUserQuery = $"SELECT id, name FROM setr.users WHERE tag = '{tag.TagID}';";
                 await using NpgsqlCommand getUser = dataSource.CreateCommand(getUserQuery);
                 await using NpgsqlDataReader rdrUser = await getUser.ExecuteReaderAsync();
                 if (!rdrUser.HasRows) return NotFound("No User was found with the provided Tag");
@@ -162,7 +162,7 @@ namespace trabalhoISI_G10.Controllers
                 if (!rdrRoom.HasRows) return NotFound("No Room was found with the provided ID");
 
                 // Check if the User Tag exists
-                string getUserQuery = $"SELECT id, name FROM setr.users WHERE tag = {tag.TagID};";
+                string getUserQuery = $"SELECT id, name FROM setr.users WHERE tag = '{tag.TagID}';";
                 await using NpgsqlCommand getUser = dataSource.CreateCommand(getUserQuery);
                 await using NpgsqlDataReader rdrUser = await getUser.ExecuteReaderAsync();
                 if (!rdrUser.HasRows) return NotFound("No User was found with the provided Tag");
