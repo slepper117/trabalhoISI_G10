@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Npgsql;
+using trabalhoISI_G10.Config;
 using trabalhoISI_G10.models;
 using static trabalhoISI_G10.Functions;
 
@@ -8,6 +10,7 @@ namespace trabalhoISI_G10.Controllers
     /// <summary>
     /// Bookings Controller
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("bookings")]
     public class BookingsController : ControllerBase
@@ -26,7 +29,7 @@ namespace trabalhoISI_G10.Controllers
             {
                 // Initialize List and Datasource
                 List<Booking> bookings = new();
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Fetch all Bookings
                 string query = "SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS bookings, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id;";
@@ -66,7 +69,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Check if the User ID exists, and builds User Object
                 string getUserQuery = $"SELECT id, name FROM setr.users WHERE id = {newBooking.User.Id};";
@@ -119,7 +122,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Booking
                 string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS bookings, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id};";
@@ -158,7 +161,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Booking
                 string getBookingQuery = $"SELECT * FROM setr.bookings WHERE id = {id};";
@@ -290,7 +293,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Booking
                 string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS count, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id};";
@@ -336,7 +339,7 @@ namespace trabalhoISI_G10.Controllers
         {
             try
             {
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Booking
                 string query = $"SELECT u.id, u.name, r.id, r.name, (SELECT count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id) AS count, b.id, b.start, b.final, b.description, b.validated FROM setr.bookings b JOIN setr.users u ON b.id_user = u.id JOIN setr.rooms r ON b.id_room = r.id WHERE b.id = {id};";

@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
+using trabalhoISI_G10.Config;
 using trabalhoISI_G10.models;
 
 namespace trabalhoISI_G10.Controllers
@@ -7,6 +9,7 @@ namespace trabalhoISI_G10.Controllers
     /// <summary>
     /// Rooms Controllers
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("rooms")]
     public class RoomsController : ControllerBase
@@ -25,7 +28,7 @@ namespace trabalhoISI_G10.Controllers
             {
                 // Initialize List and Datasource
                 List<Room> rooms = new();
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Fetch all Rooms
                 string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room GROUP BY r.id;";
@@ -63,7 +66,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Insert Room
                 string query = $"INSERT INTO setr.rooms(name) VALUES ('{newRoom.Name}') RETURNING *;";
@@ -95,7 +98,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Room
                 string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id";
@@ -133,7 +136,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Room
                 string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id;";
@@ -179,7 +182,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Room
                 string query = $"SELECT r.id, r.name, count(b.id)::INTEGER FROM setr.rooms r LEFT JOIN setr.bookings b ON r.id = b.id_room WHERE r.id = {id} GROUP BY r.id;";

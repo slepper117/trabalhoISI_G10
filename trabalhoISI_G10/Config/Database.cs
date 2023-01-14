@@ -1,9 +1,9 @@
-﻿namespace trabalhoISI_G10.models
+﻿namespace trabalhoISI_G10.Config
 {
     /// <summary>
     /// Database Configuration Model
     /// </summary>
-    public static class DatabaseConfig
+    public static class Database
     {
         // Attributes
         static string host;
@@ -14,7 +14,7 @@
         /// <summary>
         /// Default Constructor
         /// </summary>
-        static DatabaseConfig()
+        static Database()
         {
             host = "localhost";
             database = "database";
@@ -25,33 +25,33 @@
         /// <summary>
         /// Property Host Attribute
         /// </summary>
-        public static string Host 
-        { 
-            set => host = value; 
+        public static string Host
+        {
+            set => host = value;
         }
 
         /// <summary>
         /// Property Database Attribute
         /// </summary>
-        public static string Database 
-        { 
-            set => database = value; 
+        public static string DB
+        {
+            set => database = value;
         }
 
         /// <summary>
         /// Property Username Attribute
         /// </summary>
-        public static string Username 
-        { 
-            set => username = value; 
+        public static string Username
+        {
+            set => username = value;
         }
 
         /// <summary>
         /// Property Password Attribute
         /// </summary>
-        public static string Password 
-        { 
-            set => password = value; 
+        public static string Password
+        {
+            set => password = value;
         }
 
 
@@ -59,7 +59,7 @@
         /// Function that returns an Connection String
         /// </summary>
         /// <returns></returns>
-        public static String ConnectionString()
+        public static string ConnectionString()
         {
             return $"Host={host};Database={database};Username={username};Password={password}";
         }

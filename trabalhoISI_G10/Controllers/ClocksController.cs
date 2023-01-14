@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Npgsql;
-using System.Data;
+using trabalhoISI_G10.Config;
 using trabalhoISI_G10.models;
 using static trabalhoISI_G10.Functions;
 
@@ -9,6 +10,7 @@ namespace trabalhoISI_G10.Controllers
     /// <summary>
     /// Clocks Controller
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("clocks")]
     public class ClocksController : ControllerBase
@@ -28,7 +30,7 @@ namespace trabalhoISI_G10.Controllers
             {
                 // Initialize List and Datasource
                 List<Clock> clocks = new();
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Fetch all Clocks
                 string query = $"SELECT u.id, u.name, c.id, direction, datetime, l.id, l.name FROM setr.clocks c JOIN setr.users u ON c.id_user = u.id JOIN setr.users l ON c.log = l.id;";
@@ -69,7 +71,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Check if the User ID exists, and builds User Object
                 string getUserQuery = $"SELECT id, name FROM setr.users WHERE id = {newClock.User.Id};";
@@ -115,7 +117,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Clock
                 string query = $"SELECT u.id, u.name, c.id, direction, datetime, l.id, l.name FROM setr.clocks c JOIN setr.users u ON c.id_user = u.id JOIN setr.users l ON c.log = l.id WHERE c.id = {id};";
@@ -155,7 +157,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Clock
                 string getClockQuery = $"SELECT * FROM setr.clocks WHERE id = {id};";
@@ -231,7 +233,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Clock
                 string query = $"SELECT u.id, u.name, c.id, direction, datetime, l.id, l.name FROM setr.clocks c JOIN setr.users u ON c.id_user = u.id JOIN setr.users l ON c.log = l.id WHERE c.id = {id};";

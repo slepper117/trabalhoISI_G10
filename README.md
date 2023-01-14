@@ -33,7 +33,7 @@ Construir uma Web Api para o registo de entradas e saídas dos trabalhadores da 
 
 ### Versão 3.1.1
 
-- Pequenas alterações às querys
+- Pequenas alterações às querys e correção de erros
 
 ### Versão 3.2
 
@@ -42,3 +42,9 @@ Construir uma Web Api para o registo de entradas e saídas dos trabalhadores da 
 ### Versão 3.3
 
 - Atualização do Readme
+
+### Versão 4.0
+
+- Adição de Autenticação
+- Adição de Autorização
+- Adição da Pasta de Configurações

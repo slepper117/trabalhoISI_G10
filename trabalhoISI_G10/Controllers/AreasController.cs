@@ -1,16 +1,20 @@
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
+using trabalhoISI_G10.Config;
 using trabalhoISI_G10.models;
-using static trabalhoISI_G10.Functions;
 
 namespace trabalhoISI_G10.Controllers
 {
     /// <summary>
     /// Areas Controller
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("areas")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
     public class AreasController : ControllerBase
     {
         /// <summary>
@@ -18,7 +22,6 @@ namespace trabalhoISI_G10.Controllers
         /// </summary>
         /// <returns>An array of Areas</returns>
         [HttpGet]
-        [ProducesResponseType(200)]
         [ProducesResponseType(404)]
 
         public async Task<ActionResult<List<Area>>> GetAreas()
@@ -27,7 +30,7 @@ namespace trabalhoISI_G10.Controllers
             {
                 // Initialize List and Datasource
                 List<Area> areas = new();
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Fetch all Areas
                 string query = "SELECT * FROM setr.areas;";
@@ -72,7 +75,6 @@ namespace trabalhoISI_G10.Controllers
         /// <param name="newArea">Object with the Area properties</param>
         /// <returns>The newly created Area</returns>
         [HttpPost]
-        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
 
         public async Task<ActionResult<Area>> CreateArea([FromBody] Area newArea)
@@ -80,7 +82,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource and Area Object
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
                 Area area = new();
 
                 // Validates Users
@@ -93,6 +95,7 @@ namespace trabalhoISI_G10.Controllers
                         await using NpgsqlCommand getUser = dataSource.CreateCommand(getUserQuery);
                         await using NpgsqlDataReader rdrUser = await getUser.ExecuteReaderAsync();
                         if (!rdrUser.HasRows) return NotFound("No User was found with the provided ID");
+
                         await rdrUser.ReadAsync();
                         User user = new(rdrUser.GetInt32(0), rdrUser.GetString(1));
                         area.Users.Add(user);
@@ -130,8 +133,6 @@ namespace trabalhoISI_G10.Controllers
         /// <param name="id">ID of the Area</param>
         /// <returns>The fetched Area</returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
 
         public async Task<ActionResult<Area>> GetArea(int id)
@@ -139,7 +140,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Area
                 string query = $"SELECT * FROM setr.areas WHERE id = {id};";
@@ -180,8 +181,6 @@ namespace trabalhoISI_G10.Controllers
         /// <param name="updateArea">Object with the Area properties to update</param>
         /// <returns>The updated Area</returns>
         [HttpPut("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
 
         public async Task<ActionResult<Area>> UpdateArea(int id, [FromBody] Area updateArea)
@@ -189,7 +188,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource and Area Object
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
                 Area area = new();
 
                 // Get Area
@@ -271,8 +270,6 @@ namespace trabalhoISI_G10.Controllers
         /// <param name="id">The ID of the area to be deleted</param>
         /// <returns>The area deleted</returns>
         [HttpDelete("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
 
         public async Task<ActionResult<Area>> DeleteArea(int id)
@@ -280,7 +277,7 @@ namespace trabalhoISI_G10.Controllers
             try
             {
                 // Initialize Datasource
-                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(DatabaseConfig.ConnectionString());
+                await using NpgsqlDataSource dataSource = NpgsqlDataSource.Create(Database.ConnectionString());
 
                 // Get Area
                 string query = $"SELECT * FROM setr.areas WHERE id = {id};";

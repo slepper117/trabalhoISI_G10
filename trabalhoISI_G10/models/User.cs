@@ -5,6 +5,7 @@
     /// </summary>
     public class User
     {
+        // Attributes
         private int id;
         private string name;
 
@@ -14,10 +15,10 @@
         public User() { }
 
         /// <summary>
-        /// 
+        /// Constructor with all attributes
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="name"></param>
+        /// <param name="id"> ID Attribute</param>
+        /// <param name="name">Name Attribute</param>
         public User(int id, string name)
         {
             this.id = id;
@@ -25,7 +26,7 @@
         }
 
         /// <summary>
-        /// 
+        /// Property ID Attribute
         /// </summary>
         public int Id 
         {
@@ -34,7 +35,7 @@
         }
 
         /// <summary>
-        /// 
+        /// Property Name Attribute
         /// </summary>
         public string Name
         {
