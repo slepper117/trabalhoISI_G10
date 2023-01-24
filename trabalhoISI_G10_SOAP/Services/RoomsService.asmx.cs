@@ -1,38 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.Services;
-using System.Data;
-using System.Data.SqlClient;
-using System.Configuration;
-using Microsoft.SqlServer.Server;
-using System.ComponentModel;
-using System.Reflection;
-using System.ComponentModel;
 
-namespace ExemploSoa.Services
+namespace trabalhoISI_G10_SOAP.Services
 {
     /// <summary>
-    /// Serviço para gerir reservas de salas 
+    /// Descrição resumida de RoomsService
     /// </summary>
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     // Para permitir que esse serviço da web seja chamado a partir do script, usando ASP.NET AJAX, remova os comentários da linha a seguir. 
     // [System.Web.Script.Services.ScriptService]
-
-    public class GerirSala: System.Web.Services.WebService
+    public class RoomsService : System.Web.Services.WebService
     {
 
-        
         [WebMethod]
         public DataTable Get()
         {
             string constr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
             using (SqlConnection con = new SqlConnection(constr))
             {
-                using(SqlCommand cmd = new SqlCommand("select *from Users"))
+                using (SqlCommand cmd = new SqlCommand("select *from Users"))
                 {
                     using (SqlDataAdapter da = new SqlDataAdapter())
                     {
@@ -53,8 +47,8 @@ namespace ExemploSoa.Services
         [WebMethod]
         public string Put(int id, string username, string password, string tag, string schedule, string status)
         {
-            
-           // string constr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+            // string constr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
             string result = "";
             // string con = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
             SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString);
@@ -68,7 +62,7 @@ namespace ExemploSoa.Services
             cmd.Parameters.AddWithValue("@tag", tag);
             cmd.Parameters.AddWithValue("@schedule", schedule);
             cmd.Parameters.AddWithValue("@status", status);
-           
+
             //DataObjectFieldAttribute valores; if(valores.primaryKey == true)
 
             if (id > 0)
@@ -110,7 +104,7 @@ namespace ExemploSoa.Services
 
                 throw;
             }
-         
+
             return result;
         }
 
@@ -122,12 +116,12 @@ namespace ExemploSoa.Services
             SqlConnection con;
             con = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString);
             SqlCommand cmd = new SqlCommand();
-            
-            string Query = " Delete from Users where id ='"+id+"'";
+
+            string Query = " Delete from Users where id ='" + id + "'";
             cmd = new SqlCommand(Query, con);
-            
+
             con.Open();
-            cmd.ExecuteNonQuery();  
+            cmd.ExecuteNonQuery();
             result = "Deleted Successfully!";
             try
             {

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // As Informações Gerais sobre um assembly são controladas por meio do 
 // conjunto de atributos a seguir. Altere esses valores de atributo para modificar as informações
 // associadas a um assembly.
-[assembly: AssemblyTitle("ExemploSoa")]
+[assembly: AssemblyTitle("trabalhoISI_G10_SOAP")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ExemploSoa")]
+[assembly: AssemblyProduct("trabalhoISI_G10_SOAP")]
 [assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // A GUID a seguir será referente à ID do typelib se este projeto for exposto ao COM
-[assembly: Guid("0a5be7aa-ceb5-4841-8a53-e0050d742291")]
+[assembly: Guid("7c6d8354-d71a-4bd3-8178-3546f8e7cc65")]
 
 // As informações de versão de um assembly consistem nos quatro valores a seguir:
 //

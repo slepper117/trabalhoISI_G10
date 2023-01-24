@@ -5,6 +5,8 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "trabalhoISI_G10", "trabalhoISI_G10\trabalhoISI_G10.csproj", "{5A64543A-C542-43C4-95C3-F478DBB146A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "trabalhoISI_G10_SOAP", "trabalhoISI_G10_SOAP\trabalhoISI_G10_SOAP.csproj", "{7C6D8354-D71A-4BD3-8178-3546F8E7CC65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5A64543A-C542-43C4-95C3-F478DBB146A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A64543A-C542-43C4-95C3-F478DBB146A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A64543A-C542-43C4-95C3-F478DBB146A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C6D8354-D71A-4BD3-8178-3546F8E7CC65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C6D8354-D71A-4BD3-8178-3546F8E7CC65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C6D8354-D71A-4BD3-8178-3546F8E7CC65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C6D8354-D71A-4BD3-8178-3546F8E7CC65}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
